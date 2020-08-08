@@ -177,8 +177,8 @@ if __name__ == '__main__':
 		#c.printFrames(c.orig_grid, c.path, c_elapsed)
 		'''
 	else:
-		print(pathname + answer.strip())
 		d = Grid(toparse=(pathname + '\\' + answer.strip()))
+		print('Looking for path...')
 		d_elapsed = d.findPath(d.pos, d.goal)
 		d.printFrames(d.orig_grid, d.path, d_elapsed)
 	
