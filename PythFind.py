@@ -1,6 +1,7 @@
+version='1.2'
 import time
 import sys, os
-from console.utils import cls
+#from console.utils import cls
 from console.screen import sc
 from console import fg, fx
 
@@ -130,10 +131,9 @@ class Grid():
 
 	def printFrames(self, orig_grid, path, elapsed):
 		print(sc.hide_cursor)
-		rows_full=self.rows+1
+		rows_full=self.rows
 		trail = fg.yellow + '*' + fx.default
 		character = fg.red + '@' + fx.default
-		cls()
 		self.printGrid(orig_grid)
 		orig_grid[self.pos] = trail
 		time.sleep(0.1)
@@ -174,6 +174,12 @@ def parseMaze(path=None):
 
 
 if __name__ == '__main__':
+	os.system(f'title PythFinder v{version}')
+	import ctypes
+	user32 = ctypes.WinDLL('user32')
+	SW_MAXIMISE = 3
+	hWnd = user32.GetForegroundWindow()
+	user32.ShowWindow(hWnd, SW_MAXIMISE)
 	banner = """
  __      ___       ___         __   ___  __  
 |__) \ /  |  |__| |__  | |\ | |  \ |__  |__) 
