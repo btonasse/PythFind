@@ -1,6 +1,7 @@
 import time
 import sys, os
 from console.utils import cls
+from console.screen import sc
 from console import fg, fx
 from mazeparse import parseMaze
 pathname = os.path.dirname(sys.argv[0])
@@ -128,6 +129,8 @@ class Grid():
 			print(f"No valid path from {start} to {goal}")
 
 	def printFrames(self, orig_grid, path, elapsed):
+		print(sc.hide_cursor)
+		rows_full=self.rows+1
 		trail = fg.yellow + '*' + fx.default
 		character = fg.red + '@' + fx.default
 		cls()
@@ -135,7 +138,7 @@ class Grid():
 		orig_grid[self.pos] = trail
 		time.sleep(0.1)
 		for step in path:
-			cls()
+			print("\033[F"*rows_full, end='')
 			orig_grid[step] = character
 			self.printGrid(orig_grid)
 			orig_grid[step] = trail
