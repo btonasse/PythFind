@@ -3,7 +3,7 @@ import sys, os
 from console.utils import cls
 from console.screen import sc
 from console import fg, fx
-from mazeparse import parseMaze
+
 pathname = os.path.dirname(sys.argv[0])
 
 
@@ -145,16 +145,48 @@ class Grid():
 			time.sleep(0.05)
 		print(f'Finished after {len(path)} steps! Search time: {elapsed}s')
 			
+def parseMaze(path=None):
+	try:
+		with open(path) as file:
+			rawmaze = file.read().splitlines()
+	except:
+		input("File doesn't seem to exist.")
+		return False
+	parsedmaze = []
+	start = None
+	goal = None
+	for I, line in enumerate(rawmaze):
+		parsedline = ''
+		for i, char in enumerate(line):
+			if char == '@':
+				start = (I,i)
+			elif char == 'X':
+				goal = (I,i)
 			
+			if char in '+-|':
+				parsedline += '#'
+			elif char == ' ':
+				parsedline += '.'
+			else:
+				parsedline += char
+		parsedmaze.append(parsedline)
+	return parsedmaze, start, goal			
 
-wall1 = [(1, 12), (1, 13), (2, 12), (2, 13), (3, 12), (3, 13), (3, 14), (3, 15), (4, 15), (5, 12), (5, 13), (5, 14), (5, 15), (6, 12), (6, 13), (7, 12), (7, 13)]
-wall2 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13),(9, 13)]
-wall3 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2,12),(2,13),(2,14),(2,15),(2,16),(2,17),(3,17),(3,18),(3,19),(3,20),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13)]
+
 if __name__ == '__main__':
+	banner = """
+ __      ___       ___         __   ___  __  
+|__) \ /  |  |__| |__  | |\ | |  \ |__  |__) 
+|     |   |  |  | |    | | \| |__/ |___ |  \ 
+"""
+	print(banner)
 	answer = ''
 	while not answer or (answer.lower() != 'demo' and (len(answer) < 4 or answer[-4:] != '.txt')):
 		answer = input("Enter a maze txt file to solve (or 'demo' for, well... a demo)")
 	if answer == 'demo':
+		wall1 = [(1, 12), (1, 13), (2, 12), (2, 13), (3, 12), (3, 13), (3, 14), (3, 15), (4, 15), (5, 12), (5, 13), (5, 14), (5, 15), (6, 12), (6, 13), (7, 12), (7, 13)]
+		wall2 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13),(9, 13)]
+		wall3 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2,12),(2,13),(2,14),(2,15),(2,16),(2,17),(3,17),(3,18),(3,19),(3,20),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13)]
 		#First demo
 		a = Grid(demo=True, walls=wall1)
 		elapsed = a.findPath(a.pos, a.goal)
