@@ -1,24 +1,45 @@
 import time
+import sys, os
 from console.utils import cls
+from console import fg, fx
+from mazeparse import parseMaze
+pathname = os.path.dirname(sys.argv[0])
+
 
 class Grid():
-	def __init__(self, rows, cols, goal, pos, walls=()):
-		self.rows = rows
-		self.cols = cols
+	def __init__(self, rows=11, cols=22, goal=(2,18), pos=(3,3), toparse=None, demo=False, walls=None):
 		self.coords = dict()
-		self.goal = goal 
-		self.pos = pos 
-		for x in range(self.rows):
-			for y in range(self.cols):
-				if x in [0, self.rows-1] or y in [0, self.cols-1]:
-					self.coords[(x,y)] = '#'
-				else:
-					self.coords[(x,y)] = '.'
-		self.coords[self.goal] = 'X'
-		self.coords[self.pos] = '@'
 		self.orig_grid = dict()
 		self.path = []
 		self.pqueue = {}
+		if demo:
+			self.rows = rows
+			self.cols = cols
+			self.goal = goal
+			self.pos = pos
+			for x in range(self.rows):
+				for y in range(self.cols):
+					if x in [0, self.rows-1] or y in [0, self.cols-1]:
+						self.coords[(x,y)] = '#'
+					else:
+						self.coords[(x,y)] = '.'
+			self.coords[self.goal] = 'X'
+			self.coords[self.pos] = '@'
+			self.buildWalls(walls)
+		else:
+			try:
+				parsedlist, self.pos, self.goal = parseMaze(toparse)
+				self.rows = len(parsedlist)
+				self.cols = len(parsedlist[0])
+				for I, line in enumerate(parsedlist):
+					for i, char in enumerate(line):
+						self.coords[(I,i)] = char
+						self.orig_grid[(I,i)] = char
+			except:
+				sys.exit()
+
+
+		
 	
 	def buildWalls(self, walls):
 		for coord in walls:
@@ -107,16 +128,18 @@ class Grid():
 			print(f"No valid path from {start} to {goal}")
 
 	def printFrames(self, orig_grid, path, elapsed):
+		trail = fg.yellow + '*' + fx.default
+		character = fg.red + '@' + fx.default
 		cls()
 		self.printGrid(orig_grid)
-		orig_grid[self.pos] = '*'
-		time.sleep(0.5)
+		orig_grid[self.pos] = trail
+		time.sleep(0.1)
 		for step in path:
 			cls()
-			orig_grid[step] = '@'
+			orig_grid[step] = character
 			self.printGrid(orig_grid)
-			orig_grid[step] = '*'
-			time.sleep(0.5)
+			orig_grid[step] = trail
+			time.sleep(0.05)
 		print(f'Finished after {len(path)} steps! Search time: {elapsed}s')
 			
 			
@@ -125,23 +148,36 @@ wall1 = [(1, 12), (1, 13), (2, 12), (2, 13), (3, 12), (3, 13), (3, 14), (3, 15),
 wall2 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13),(9, 13)]
 wall3 = [(2,2),(2,3),(2,4),(2,5),(2,7),(2,8),(2,9),(2,10),(2,11),(2,12),(2,13),(2,14),(2,15),(2,16),(2,17),(3,17),(3,18),(3,19),(3,20),(2, 6), (4, 6), (5, 6), (6, 6), (7, 6), (8, 6), (9, 6),(2, 12), (3, 12), (4, 12), (5, 12), (6, 12), (7, 12), (8, 12), (8,13)]
 if __name__ == '__main__':
-	a = Grid(11,22, (2,18), (3,3))
-	a.buildWalls(wall1)
-	elapsed = a.findPath(a.pos, a.goal)
-	a.printFrames(a.orig_grid, a.path, elapsed)
-	
-	'''
-	print('\n\n')
-	b = Grid(11,22, (2,18), (3,3))
-	b.buildWalls(wall2)
-	b.findPath(b.pos, b.goal, True)
-	#b.printFrames(b.orig_grid, b.path)
-	print('\n\n')
-	c = Grid(11,22, (2,18), (3,3))
-	c.buildWalls(wall3)
-	c.findPath(c.pos, c.goal, True)
-	#c.printFrames(c.orig_grid, c.path)
-	'''
+	answer = ''
+	while not answer or (answer.lower() != 'demo' and (len(answer) < 4 or answer[-4:] != '.txt')):
+		answer = input("Enter a maze txt file to solve (or 'demo' for, well... a demo)")
+	if answer == 'demo':
+		#First demo
+		a = Grid(demo=True, walls=wall1)
+		elapsed = a.findPath(a.pos, a.goal)
+		a.printFrames(a.orig_grid, a.path, elapsed)
+
+		'''
+		#Second demo
+		b = Grid(demo=True, walls=wall2)
+		b.findPath(b.pos, b.goal, True)
+		#b_elapsed = b.findPath(b.pos, b.goal)
+		#b.printFrames(b.orig_grid, b.path, b_elapsed)
+		'''
+
+		'''
+		#Second demo
+		c = Grid(demo=True, walls=wall3)
+		c.buildWalls(wall3)
+		c.findPath(c.pos, c.goal, True)
+		#c_elapsed = c.findPath(c.pos, c.goal)
+		#c.printFrames(c.orig_grid, c.path, c_elapsed)
+		'''
+	else:
+		print(pathname + answer.strip())
+		d = Grid(toparse=(pathname + '\\' + answer.strip()))
+		d_elapsed = d.findPath(d.pos, d.goal)
+		d.printFrames(d.orig_grid, d.path, d_elapsed)
 	
 	
 	
